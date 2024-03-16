@@ -18,15 +18,33 @@
     >
         insert into
             t_user (phone, email, password, salt, createTime)
-            values (#{phone}, #{email}, #{password}, #{aslt}, #{createTime})
+            values (#{phone}, #{email}, #{password}, #{salt}, #{createTime})
     </insert>
 
     <insert id="addUserInfo"
             parameterType="com.TechieTroveHub.POJO.UserInfo"
     >
         insert into
-            t_userInfo (userId, nick, avatar, sign, gender, birth, createTime)
+            t_user_info (userId, nick, avatar, sign, gender, birth, createTime)
         values (#{userId}, #{nick}, #{avatar}, #{sign}, #{gender}, #{birth}, #{createTime})
     </insert>
+
+    <select id="getUserById" parameterType="java.lang.Long"  resultType="com.TechieTroveHub.POJO.User">
+        select
+            *
+        from
+            t_user
+        where
+            id = #{id}
+    </select>
+
+    <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="com.TechieTroveHub.POJO.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            userId = #{userId}
+    </select>
 
 </mapper>

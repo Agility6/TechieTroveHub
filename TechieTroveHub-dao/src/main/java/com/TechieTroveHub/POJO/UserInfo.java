@@ -26,7 +26,7 @@ public class UserInfo {
 
     private String birth;
 
-    private Date  creatTime;
+    private Date  createTime;
 
     private Date updateTime;
 
@@ -86,12 +86,12 @@ public class UserInfo {
         this.birth = birth;
     }
 
-    public Date getCreatTime() {
-        return creatTime;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreatTime(Date creatTime) {
-        this.creatTime = creatTime;
+    public void setCreateTime(Date creatTime) {
+        this.createTime = creatTime;
     }
 
     public Date getUpdateTime() {
