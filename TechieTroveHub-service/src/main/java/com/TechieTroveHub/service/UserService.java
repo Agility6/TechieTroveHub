@@ -69,12 +69,13 @@ public class UserService {
         userDao.addUser(user);
 
         // 关联user_info
+        // TODO 应该增加事务 确保UserInfo和User同时成功
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(user.getId());
         userInfo.setNick(DEFAULT_NICK);
         userInfo.setBirth(DEFAULT_BIRTH);
         userInfo.setGender(GENDER_MALE);
-        userInfo.setCreatTime(now);
+        userInfo.setCreateTime(now);
         userDao.addUserInfo(userInfo);
     }
 
@@ -82,7 +83,7 @@ public class UserService {
         return userDao.getUserByPhone(phone);
     }
 
-    public String login(User user) {
+    public String login(User user) throws Exception {
 
         String phone = user.getPhone();
 
@@ -92,7 +93,7 @@ public class UserService {
 
         // TODO 判断手机号合法性
 
-        User dbUser = getUserByPhone(phone);
+        User dbUser = this.getUserByPhone(phone);
         if (dbUser == null) {
             throw new ConditionException("当前用户不存在！");
         }
@@ -108,12 +109,18 @@ public class UserService {
         String salt = dbUser.getSalt();
         String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
 
-        if (md5Password.equals(dbUser.getPassword())) {
+        if (!md5Password.equals(dbUser.getPassword())) {
             throw new ConditionException("密码错误！");
         }
 
-        TokenUtil tokenUtil = new TokenUtil();
+        return TokenUtil.generateToken(dbUser.getId());
+    }
 
-        return tokenUtil.generateToken(dbUser.getId());
+    public User getUserInfo(Long userId) {
+       User user = userDao.getUserById(userId);
+       UserInfo userInfo = userDao.getUserInfoByUserId(userId);
+       // TODO 待优化user中嵌套了userInfo
+       user.setUserInfo(userInfo);
+       return user;
     }
 }
