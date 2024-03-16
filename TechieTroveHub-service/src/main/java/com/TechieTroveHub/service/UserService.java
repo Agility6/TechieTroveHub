@@ -85,15 +85,19 @@ public class UserService {
 
     public String login(User user) throws Exception {
 
-        String phone = user.getPhone();
+        String phone = user.getPhone() == null ? "" : user.getPhone();
+        String email = user.getEmail() == null ? "" : user.getEmail();
 
-        if (StringUtils.isNullOrEmpty(phone)) {
-            throw new ConditionException("手机号不能为空！");
+        if (StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)) {
+            throw new ConditionException("参数异常！");
         }
 
         // TODO 判断手机号合法性
 
-        User dbUser = this.getUserByPhone(phone);
+        // 前端只会传手机号或者邮箱
+        String phoneOrEmail = phone + email;
+
+        User dbUser = userDao.getUserByPhoneOrEmail(phoneOrEmail);
         if (dbUser == null) {
             throw new ConditionException("当前用户不存在！");
         }
@@ -122,5 +126,28 @@ public class UserService {
        // TODO 待优化user中嵌套了userInfo
        user.setUserInfo(userInfo);
        return user;
+    }
+
+    public void updateUsers(User user) throws Exception {
+        Long id = user.getId();
+        User dbUser= userDao.getUserById(id);
+        if (dbUser == null) {
+            throw new ConditionException("用户不存在！");
+        }
+
+        // TODO 判断是否是修改密码
+        if (!StringUtils.isNullOrEmpty(user.getPassword())) {
+            String rawPassword = RSAUtil.decrypt(user.getPassword());
+            String md5Password = MD5Util.sign(rawPassword, dbUser.getSalt(), "UTF-8");
+            user.setPassword(md5Password);
+        }
+
+        user.setUpdateTime(new Date());
+        userDao.updateUsers(user);
+    }
+
+    public void updateUserInfos(UserInfo userInfo) {
+        userInfo.setUpdateTime(new Date());
+        userDao.updateUserInfos(userInfo);
     }
 }
