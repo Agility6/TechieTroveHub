@@ -2,7 +2,12 @@ package com.TechieTroveHub.dao;
 
 import com.TechieTroveHub.POJO.User;
 import com.TechieTroveHub.POJO.UserInfo;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * ClassName: UserDao
@@ -30,4 +35,10 @@ public interface UserDao {
     Integer updateUsers(User user);
 
     Integer updateUserInfos(UserInfo userInfo);
+
+    List<UserInfo> getUserInfoByUserIds(Set<Long> usrIdList);
+
+    Integer pageCountUserInfos(Map<String, Object> params);
+
+    List<UserInfo> pageListUserInfos(JSONObject params);
 }

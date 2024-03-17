@@ -1,5 +1,6 @@
 package com.TechieTroveHub.service;
 
+import com.TechieTroveHub.POJO.PageResult;
 import com.TechieTroveHub.POJO.User;
 import com.TechieTroveHub.POJO.UserInfo;
 import com.TechieTroveHub.POJO.exception.ConditionException;
@@ -7,11 +8,15 @@ import com.TechieTroveHub.dao.UserDao;
 import com.TechieTroveHub.utils.MD5Util;
 import com.TechieTroveHub.utils.RSAUtil;
 import com.TechieTroveHub.utils.TokenUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import static com.TechieTroveHub.POJO.constant.UserConstant.*;
 
@@ -62,7 +67,6 @@ public class UserService {
         // 插入数据库之前MD5加密密码
         String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
 
-        // TODO 没有添加Email？
         user.setSalt(salt);
         user.setPassword(md5Password);
         user.setCreateTime(now);
@@ -149,5 +153,28 @@ public class UserService {
     public void updateUserInfos(UserInfo userInfo) {
         userInfo.setUpdateTime(new Date());
         userDao.updateUserInfos(userInfo);
+    }
+
+    public User getUserById(Long followingId) {
+        return userDao.getUserById(followingId);
+    }
+
+    public List<UserInfo> getUserInfoByUserIds(Set<Long> usrIdList) {
+        return userDao.getUserInfoByUserIds(usrIdList);
+    }
+
+    public PageResult<UserInfo> pageListUserInfos(JSONObject params) {
+        Integer no = params.getInteger("no");
+        Integer size = params.getInteger("size");
+        params.put("start", (no - 1) * size);
+        params.put("limit", size);
+        Integer total =  userDao.pageCountUserInfos(params); // 查看符合用于信息的有多少
+
+        List<UserInfo> list = new ArrayList<>();
+        if (total > 0) {
+            list = userDao.pageListUserInfos(params);
+        }
+
+        return new PageResult<>(total, list);
     }
 }

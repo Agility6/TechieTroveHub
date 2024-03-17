@@ -1,13 +1,18 @@
 package com.TechieTroveHub.api;
 
 import com.TechieTroveHub.POJO.JsonResponse;
+import com.TechieTroveHub.POJO.PageResult;
 import com.TechieTroveHub.POJO.User;
 import com.TechieTroveHub.POJO.UserInfo;
+import com.TechieTroveHub.service.UserFollowingService;
 import com.TechieTroveHub.service.UserService;
 import com.TechieTroveHub.support.UserSupport;
 import com.TechieTroveHub.utils.RSAUtil;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * ClassName: UserApi
@@ -25,6 +30,9 @@ public class UserApi {
 
     @Autowired
     private UserSupport userSupport;
+
+    @Autowired
+    private UserFollowingService userFollowingService;
 
     @GetMapping("/users")
     public JsonResponse<User> getUserInfo() {
@@ -66,5 +74,27 @@ public class UserApi {
         userInfo.setUserId(userId);
         userService.updateUserInfos(userInfo);
         return JsonResponse.success();
+    }
+
+    // 分页查询用户列表
+    @GetMapping("/user-infos")
+    public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam Integer no, @RequestParam Integer size, String nick) {
+        Long userId = userSupport.getCurrentUserId();
+        JSONObject params = new JSONObject();
+        // TODO 待优化
+        params.put("no", no);
+        params.put("size", size);
+        params.put("nick", nick);
+        params.put("userId", userId);
+        PageResult<UserInfo> result = userService.pageListUserInfos(params);
+        // 没有被当前登录用户关注，才能进行关注。
+        if (result.getTotal() > 0) {
+            // 返回的还是UserInfo，但是会把UserInfo的followed属性进行标记
+            // TODO 应该增加DTO或者VO
+            List<UserInfo> checkedUserInfoList = userFollowingService.checkFollowingStatus(result.getList(), userId);
+            result.setList(checkedUserInfoList);
+        }
+
+        return new JsonResponse<>(result);
     }
 }
