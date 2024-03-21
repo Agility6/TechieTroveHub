@@ -101,18 +101,17 @@
 
     <select id="getUserInfoByUserIds" resultType="com.TechieTroveHub.POJO.UserInfo">
         select
-            *
+        *
         from
-            t_user_info
+        t_user_info
         where
-            1 = 1
-            <!-- TODO 如果if不生效，默认查询所有数据？ -->
-            <if test="userIdList != null and userIdList.size > 0">
-                and userId in 
-                <foreach collection="userIdList" item="userId" index="index" open="(" close=")" separator=",">
-                    #{userId}
-                </foreach>
-            </if>
+        1=1
+        <if test="userIdList != null and userIdList.size > 0">
+            and userId in
+            <foreach collection="userIdList" item = "userId" index="index" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
+        </if>
     </select>
 
     <select id="pageCountUserInfos" parameterType="java.util.Map" resultType="java.lang.Long">

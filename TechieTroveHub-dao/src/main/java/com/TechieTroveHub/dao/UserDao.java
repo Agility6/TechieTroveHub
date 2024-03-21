@@ -36,7 +36,7 @@ public interface UserDao {
 
     Integer updateUserInfos(UserInfo userInfo);
 
-    List<UserInfo> getUserInfoByUserIds(Set<Long> usrIdList);
+    List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList);
 
     Integer pageCountUserInfos(Map<String, Object> params);
 
