@@ -34,6 +34,10 @@ public class UserApi {
     @Autowired
     private UserFollowingService userFollowingService;
 
+    /**
+     * 获取用户信息
+     * @return
+     */
     @GetMapping("/users")
     public JsonResponse<User> getUserInfo() {
         Long userId = userSupport.getCurrentUserId();
@@ -42,24 +46,45 @@ public class UserApi {
     }
 
 
+    /**
+     * 获取公钥
+     * @return
+     */
     @GetMapping("/rsa-pks")
     public JsonResponse<String> getRsaPublicKey() {
         String pk = RSAUtil.getPublicKeyStr();
         return new JsonResponse<>(pk);
     }
 
+    /**
+     * 增加用户
+     * @param user
+     * @return
+     */
     @PostMapping("/users")
     public JsonResponse<String> addUser(@RequestBody User user) {
         userService.addUser(user);
         return JsonResponse.success();
     }
 
+    /**
+     * 登录
+     * @param user
+     * @return
+     * @throws Exception
+     */
     @PostMapping("/user-tokens")
     public JsonResponse<String> login(@RequestBody User user) throws Exception {
         String token = userService.login(user);
         return new JsonResponse<>(token);
     }
 
+    /**
+     * 更新用户
+     * @param user
+     * @return
+     * @throws Exception
+     */
     @PutMapping("/users")
     public JsonResponse<String> updateUsers(@RequestBody User user) throws Exception {
         Long userId = userSupport.getCurrentUserId();
@@ -68,6 +93,11 @@ public class UserApi {
         return JsonResponse.success();
     }
 
+    /**
+     * 更新用户信息
+     * @param userInfo
+     * @return
+     */
     @PutMapping("/user-infos")
     public JsonResponse<String> updateUserInfos(@RequestBody UserInfo userInfo) {
         Long userId = userSupport.getCurrentUserId();
@@ -76,7 +106,13 @@ public class UserApi {
         return JsonResponse.success();
     }
 
-    // 分页查询用户列表
+    /**
+     * 分页查询用户列表
+     * @param no
+     * @param size
+     * @param nick
+     * @return
+     */
     @GetMapping("/user-infos")
     public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam Integer no, @RequestParam Integer size, String nick) {
         Long userId = userSupport.getCurrentUserId();

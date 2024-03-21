@@ -79,7 +79,8 @@ public class UserFollowingService {
         // 通过关注列表获取关注用户的id（followingId属性）
         Set<Long> followingIdSet = list.stream().map(UserFollowing::getFollowingId).collect(Collectors.toSet());
 
-        // 查询被关注着的信息
+        // 查询被关注者的信息
+
         List<UserInfo> userInfoList = new ArrayList<>();
         if (!followingIdSet.isEmpty()) {
             // 根据关注用户id列表查询出userInfoList

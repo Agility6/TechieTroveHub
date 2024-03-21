@@ -8,7 +8,7 @@ package com.TechieTroveHub.POJO.constant;
  * @Create 2024/3/15 12:18
  * @Version: 1.0
  */
-public class UserConstant {
+public interface UserConstant {
 
     public static final String GENDER_MALE = "0";
 

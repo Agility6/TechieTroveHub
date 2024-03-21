@@ -30,6 +30,11 @@ public class UserFollowingApi {
     @Autowired
     private UserSupport userSupport;
 
+    /**
+     * 增加关注
+     * @param userFollowing
+     * @return
+     */
     @PostMapping("/user-followings")
     public JsonResponse<String> addUserFollowings(@RequestBody UserFollowing userFollowing) {
         Long userId = userSupport.getCurrentUserId();
@@ -38,6 +43,10 @@ public class UserFollowingApi {
         return JsonResponse.success();
     }
 
+    /**
+     * 获取关注列表
+     * @return
+     */
     @GetMapping("/user-followings")
     public JsonResponse<List<FollowingGroup>> getUserFollowings() {
         Long userId = userSupport.getCurrentUserId();
@@ -45,6 +54,10 @@ public class UserFollowingApi {
         return new JsonResponse<>(result);
     }
 
+    /**
+     * 获取粉丝列表
+     * @return
+     */
     @GetMapping("/user-fans")
     public JsonResponse<List<UserFollowing>> getUserFans() {
         Long userId = userSupport.getCurrentUserId();
@@ -52,6 +65,11 @@ public class UserFollowingApi {
         return new JsonResponse<>(result);
     }
 
+    /**
+     * 增加关注分组
+     * @param followingGroup
+     * @return
+     */
     @PostMapping("/user-following-groups")
     public JsonResponse<Long> addUserFollowingGroups(@RequestBody FollowingGroup followingGroup) {
         Long userId = userSupport.getCurrentUserId();
@@ -60,6 +78,10 @@ public class UserFollowingApi {
         return new JsonResponse<>(groupId);
     }
 
+    /**
+     * 获取关注分组
+     * @return
+     */
     @GetMapping("/user-following-groups")
     public JsonResponse<List<FollowingGroup>> getUserFollowingGroups() {
         Long userId = userSupport.getCurrentUserId();
