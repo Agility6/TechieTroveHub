@@ -1,10 +1,13 @@
 package com.TechieTroveHub.dao;
 
+import com.TechieTroveHub.POJO.RefreshTokenDetail;
 import com.TechieTroveHub.POJO.User;
 import com.TechieTroveHub.POJO.UserInfo;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,4 +44,15 @@ public interface UserDao {
     Integer pageCountUserInfos(Map<String, Object> params);
 
     List<UserInfo> pageListUserInfos(JSONObject params);
+
+    Integer deleteRefreshToken(@Param("refreshToken") String refreshToken,
+                               @Param("userId") Long userId);
+
+    Integer addRefreshToken(@Param("refreshToken") String refreshToken,
+                            @Param("userId") Long userId,
+                            @Param("createTime") Date createTime);
+
+    RefreshTokenDetail getRefreshTokenDetail(String refreshToken);
+
+    Integer deleteRefreshTokenByUserId(Long userId);
 }

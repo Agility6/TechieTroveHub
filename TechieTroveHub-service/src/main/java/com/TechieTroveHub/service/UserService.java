@@ -1,6 +1,7 @@
 package com.TechieTroveHub.service;
 
 import com.TechieTroveHub.POJO.PageResult;
+import com.TechieTroveHub.POJO.RefreshTokenDetail;
 import com.TechieTroveHub.POJO.User;
 import com.TechieTroveHub.POJO.UserInfo;
 import com.TechieTroveHub.POJO.exception.ConditionException;
@@ -13,10 +14,7 @@ import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.TechieTroveHub.POJO.constant.UserConstant.*;
 
@@ -183,5 +181,66 @@ public class UserService {
         }
 
         return new PageResult<>(total, list);
+    }
+
+    public Map<String, Object> loginForDts(User user) throws Exception {
+
+        String phone = user.getPhone() == null ? "" : user.getPhone();
+        String email = user.getEmail() == null ? "" : user.getEmail();
+
+        if (StringUtils.isNullOrEmpty(phone) && StringUtils.isNullOrEmpty(email)) {
+            throw new ConditionException("参数异常！");
+        }
+
+        // TODO 判断手机号合法性
+
+        // 前端只会传手机号或者邮箱
+        String phoneOrEmail = phone + email;
+
+        User dbUser = userDao.getUserByPhoneOrEmail(phoneOrEmail);
+        if (dbUser == null) {
+            throw new ConditionException("当前用户不存在！");
+        }
+
+        String password = user.getPassword();
+        String rawPassword;
+        try {
+            rawPassword = RSAUtil.decrypt(password);
+        } catch (Exception e) {
+            throw new ConditionException("密码解密失败！");
+        }
+
+        String salt = dbUser.getSalt();
+        String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
+
+        if (!md5Password.equals(dbUser.getPassword())) {
+            throw new ConditionException("密码错误！");
+        }
+
+        String accessToken = TokenUtil.generateToken(dbUser.getId());
+        // 刷新token
+        String refreshToken = TokenUtil.generateRefreshToken(dbUser.getId());
+        // 保存到数据库中
+        userDao.deleteRefreshTokenByUserId(dbUser.getId());
+        userDao.addRefreshToken(refreshToken, dbUser.getId(), new Date());
+        Map<String, Object> result = new HashMap<>();
+        result.put("accessToken", accessToken);
+        result.put("refreshToken", refreshToken);
+        return result;
+    }
+
+    public void logout(String refreshToken, Long userId) {
+        userDao.deleteRefreshToken(refreshToken, userId);
+    }
+
+    public String refreshAccessToken(String refreshToken) throws Exception {
+        RefreshTokenDetail refreshTokenDetail = userDao.getRefreshTokenDetail(refreshToken);
+        if (refreshTokenDetail == null) {
+            throw new ConditionException("555", "token过期！");
+        }
+
+        Long userId = refreshTokenDetail.getUserId();
+        // 根据userId重新刷新token
+        return TokenUtil.generateToken(userId);
     }
 }
