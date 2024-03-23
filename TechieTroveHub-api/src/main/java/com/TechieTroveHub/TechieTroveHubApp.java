@@ -2,6 +2,8 @@ package com.TechieTroveHub;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * ClassName: TechieTroveHubApp
@@ -15,6 +17,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TechieTroveHubApp {
 
     public static void main(String[] args) {
-        SpringApplication.run(TechieTroveHubApp.class, args);
+        ApplicationContext app = SpringApplication.run(TechieTroveHubApp.class, args);
     }
 }
