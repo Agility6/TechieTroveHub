@@ -1,6 +1,6 @@
 package com.TechieTroveHub.service;
 
-import com.TechieTroveHub.POJO.auth.*;
+import com.TechieTroveHub.pojo.auth.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.TechieTroveHub.POJO.constant.AuthRoleConstant.ROLE_LV0;
+import static com.TechieTroveHub.pojo.constant.AuthRoleConstant.ROLE_LV0;
 
 /**
  * ClassName: UserAuthService

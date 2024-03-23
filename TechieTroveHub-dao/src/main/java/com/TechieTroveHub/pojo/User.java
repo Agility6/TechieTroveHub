@@ -1,4 +1,4 @@
-package com.TechieTroveHub.POJO;
+package com.TechieTroveHub.pojo;
 
 
 import java.util.Date;

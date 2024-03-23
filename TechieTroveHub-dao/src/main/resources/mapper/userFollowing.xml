@@ -9,13 +9,13 @@
             userId = #{userId} and followingId = #{followingId}
     </delete>
     
-    <insert id="addUserFollowing" parameterType="com.TechieTroveHub.POJO.UserFollowing">
+    <insert id="addUserFollowing" parameterType="com.TechieTroveHub.pojo.UserFollowing">
         insert into
             t_user_following (userId, followingId, groupId, createTime)
             values (#{userId}, #{followingId}, #{groupId}, #{createTime})
     </insert>
 
-    <select id="getUserFollowings" parameterType="java.lang.Long" resultType="com.TechieTroveHub.POJO.UserFollowing">
+    <select id="getUserFollowings" parameterType="java.lang.Long" resultType="com.TechieTroveHub.pojo.UserFollowing">
         select
             *
         from
@@ -24,7 +24,7 @@
             userId = #{userId}
     </select>
 
-    <select id="getUserFans" parameterType="java.lang.Long" resultType="com.TechieTroveHub.POJO.UserFollowing">
+    <select id="getUserFans" parameterType="java.lang.Long" resultType="com.TechieTroveHub.pojo.UserFollowing">
         select
             *
         from

@@ -1,6 +1,6 @@
 package com.TechieTroveHub.service;
 
-import com.TechieTroveHub.POJO.auth.AuthRoleMenu;
+import com.TechieTroveHub.pojo.auth.AuthRoleMenu;
 import com.TechieTroveHub.dao.AuthRoleMenuDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

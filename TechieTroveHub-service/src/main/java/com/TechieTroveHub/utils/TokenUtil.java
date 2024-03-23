@@ -1,6 +1,6 @@
 package com.TechieTroveHub.utils;
 
-import com.TechieTroveHub.POJO.exception.ConditionException;
+import com.TechieTroveHub.pojo.exception.ConditionException;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;

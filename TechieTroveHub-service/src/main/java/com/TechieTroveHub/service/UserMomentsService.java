@@ -1,6 +1,6 @@
 package com.TechieTroveHub.service;
 
-import com.TechieTroveHub.POJO.UserMoment;
+import com.TechieTroveHub.pojo.UserMoment;
 import com.TechieTroveHub.dao.UserMomentsDao;
 import com.TechieTroveHub.utils.RocketMQUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
-import static com.TechieTroveHub.POJO.constant.UserMomentsConstant.TOPIC_MOMENTS;
+import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.TOPIC_MOMENTS;
 
 /**
  * ClassName: UserMomentsService

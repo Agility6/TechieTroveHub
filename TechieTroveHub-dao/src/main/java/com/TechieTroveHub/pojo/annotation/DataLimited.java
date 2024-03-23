@@ -1,4 +1,4 @@
-package com.TechieTroveHub.POJO.annotation;
+package com.TechieTroveHub.pojo.annotation;
 
 import org.springframework.stereotype.Component;
 

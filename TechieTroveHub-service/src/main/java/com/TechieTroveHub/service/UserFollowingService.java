@@ -1,10 +1,10 @@
 package com.TechieTroveHub.service;
 
-import com.TechieTroveHub.POJO.FollowingGroup;
-import com.TechieTroveHub.POJO.User;
-import com.TechieTroveHub.POJO.UserFollowing;
-import com.TechieTroveHub.POJO.UserInfo;
-import com.TechieTroveHub.POJO.exception.ConditionException;
+import com.TechieTroveHub.pojo.FollowingGroup;
+import com.TechieTroveHub.pojo.User;
+import com.TechieTroveHub.pojo.UserFollowing;
+import com.TechieTroveHub.pojo.UserInfo;
+import com.TechieTroveHub.pojo.exception.ConditionException;
 import com.TechieTroveHub.dao.UserFollowingDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.TechieTroveHub.POJO.constant.UserConstant.*;
+import static com.TechieTroveHub.pojo.constant.UserConstant.*;
 
 /**
  * ClassName: UserFollowingService

@@ -1,4 +1,4 @@
-package com.TechieTroveHub.POJO.constant;
+package com.TechieTroveHub.pojo.constant;
 
 /**
  * ClassName: UserConstant

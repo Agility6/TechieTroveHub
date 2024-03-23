@@ -3,11 +3,11 @@
 <mapper namespace="com.TechieTroveHub.dao.AuthRoleElementOperationDao">
 
     <!-- TODO转化VO DTO -->
-    <resultMap id="AuthElementOperationResultMap" type="com.TechieTroveHub.POJO.auth.AuthRoleElementOperation">
+    <resultMap id="AuthElementOperationResultMap" type="com.TechieTroveHub.pojo.auth.AuthRoleElementOperation">
         <id column="id" property="id"/>
         <id column="roleId" property="roleId"/>
         <id column="elementOperationId" property="elementOperationId"/>
-        <association property="authElementOperation" javaType="com.TechieTroveHub.POJO.auth.AuthElementOperation">
+        <association property="authElementOperation" javaType="com.TechieTroveHub.pojo.auth.AuthElementOperation">
             <id column="elementName" property="elementName"/>
             <id column="elementCode" property="elementCode"/>
             <id column="operationType" property="operationType"/>

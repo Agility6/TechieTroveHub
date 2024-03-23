@@ -1,8 +1,8 @@
 package com.TechieTroveHub.aspect;
 
-import com.TechieTroveHub.POJO.UserMoment;
-import com.TechieTroveHub.POJO.auth.UserRole;
-import com.TechieTroveHub.POJO.exception.ConditionException;
+import com.TechieTroveHub.pojo.UserMoment;
+import com.TechieTroveHub.pojo.auth.UserRole;
+import com.TechieTroveHub.pojo.exception.ConditionException;
 import com.TechieTroveHub.service.UserRoleService;
 import com.TechieTroveHub.support.UserSupport;
 import org.aspectj.lang.JoinPoint;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.TechieTroveHub.POJO.constant.AuthRoleConstant.ROLE_LV0;
+import static com.TechieTroveHub.pojo.constant.AuthRoleConstant.ROLE_LV0;
 
 /**
  * ClassName: ApiLimitedRoleAspect
@@ -38,7 +38,7 @@ public class DataLimitedAspect {
     @Autowired
     private UserRoleService userRoleService;
 
-    @Pointcut("@annotation(com.TechieTroveHub.POJO.annotation.DataLimited)")
+    @Pointcut("@annotation(com.TechieTroveHub.pojo.annotation.DataLimited)")
     public void check() {}
 
     @Before("check()")

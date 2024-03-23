@@ -1,6 +1,6 @@
 package com.TechieTroveHub.dao;
 
-import com.TechieTroveHub.POJO.UserFollowing;
+import com.TechieTroveHub.pojo.UserFollowing;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

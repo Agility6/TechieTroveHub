@@ -1,6 +1,6 @@
 package com.TechieTroveHub.support;
 
-import com.TechieTroveHub.POJO.exception.ConditionException;
+import com.TechieTroveHub.pojo.exception.ConditionException;
 import com.TechieTroveHub.utils.TokenUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;

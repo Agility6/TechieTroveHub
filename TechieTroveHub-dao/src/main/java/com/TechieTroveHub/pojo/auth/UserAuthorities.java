@@ -1,4 +1,4 @@
-package com.TechieTroveHub.POJO.auth;
+package com.TechieTroveHub.pojo.auth;
 
 import java.util.List;
 

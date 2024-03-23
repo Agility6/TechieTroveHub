@@ -1,9 +1,9 @@
 package com.TechieTroveHub.api;
 
-import com.TechieTroveHub.POJO.JsonResponse;
-import com.TechieTroveHub.POJO.PageResult;
-import com.TechieTroveHub.POJO.User;
-import com.TechieTroveHub.POJO.UserInfo;
+import com.TechieTroveHub.pojo.JsonResponse;
+import com.TechieTroveHub.pojo.PageResult;
+import com.TechieTroveHub.pojo.User;
+import com.TechieTroveHub.pojo.UserInfo;
 import com.TechieTroveHub.service.UserFollowingService;
 import com.TechieTroveHub.service.UserService;
 import com.TechieTroveHub.support.UserSupport;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * ClassName: UserApi

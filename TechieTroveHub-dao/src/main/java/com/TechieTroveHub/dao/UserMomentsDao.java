@@ -1,6 +1,6 @@
 package com.TechieTroveHub.dao;
 
-import com.TechieTroveHub.POJO.UserMoment;
+import com.TechieTroveHub.pojo.UserMoment;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

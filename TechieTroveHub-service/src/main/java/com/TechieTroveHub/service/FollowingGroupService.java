@@ -1,6 +1,6 @@
 package com.TechieTroveHub.service;
 
-import com.TechieTroveHub.POJO.FollowingGroup;
+import com.TechieTroveHub.pojo.FollowingGroup;
 import com.TechieTroveHub.dao.FollowingGroupDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

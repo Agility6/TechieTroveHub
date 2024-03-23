@@ -1,8 +1,8 @@
 package com.TechieTroveHub.dao;
 
-import com.TechieTroveHub.POJO.RefreshTokenDetail;
-import com.TechieTroveHub.POJO.User;
-import com.TechieTroveHub.POJO.UserInfo;
+import com.TechieTroveHub.pojo.RefreshTokenDetail;
+import com.TechieTroveHub.pojo.User;
+import com.TechieTroveHub.pojo.UserInfo;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

@@ -1,6 +1,6 @@
 package com.TechieTroveHub.dao;
 
-import com.TechieTroveHub.POJO.FollowingGroup;
+import com.TechieTroveHub.pojo.FollowingGroup;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

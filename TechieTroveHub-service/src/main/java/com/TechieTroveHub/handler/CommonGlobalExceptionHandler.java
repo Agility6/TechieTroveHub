@@ -1,7 +1,7 @@
 package com.TechieTroveHub.handler;
 
-import com.TechieTroveHub.POJO.JsonResponse;
-import com.TechieTroveHub.POJO.exception.ConditionException;
+import com.TechieTroveHub.pojo.JsonResponse;
+import com.TechieTroveHub.pojo.exception.ConditionException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.TechieTroveHub.dao.UserDao">
 
-    <select id="getUserByPhone" parameterType="java.lang.String" resultType="com.TechieTroveHub.POJO.User">
+    <select id="getUserByPhone" parameterType="java.lang.String" resultType="com.TechieTroveHub.pojo.User">
         select
             *
         from
@@ -12,7 +12,7 @@
     </select>
 
     <insert id="addUser"
-            parameterType="com.TechieTroveHub.POJO.User"
+            parameterType="com.TechieTroveHub.pojo.User"
             useGeneratedKeys="true"
             keyProperty="id"
     >
@@ -22,14 +22,14 @@
     </insert>
 
     <insert id="addUserInfo"
-            parameterType="com.TechieTroveHub.POJO.UserInfo"
+            parameterType="com.TechieTroveHub.pojo.UserInfo"
     >
         insert into
             t_user_info (userId, nick, avatar, sign, gender, birth, createTime)
         values (#{userId}, #{nick}, #{avatar}, #{sign}, #{gender}, #{birth}, #{createTime})
     </insert>
 
-    <select id="getUserById" parameterType="java.lang.Long"  resultType="com.TechieTroveHub.POJO.User">
+    <select id="getUserById" parameterType="java.lang.Long"  resultType="com.TechieTroveHub.pojo.User">
         select
             *
         from
@@ -38,7 +38,7 @@
             id = #{id}
     </select>
 
-    <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="com.TechieTroveHub.POJO.UserInfo">
+    <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="com.TechieTroveHub.pojo.UserInfo">
         select
             *
         from
@@ -47,7 +47,7 @@
             userId = #{userId}
     </select>
 
-    <update id="updateUsers" parameterType="com.TechieTroveHub.POJO.User">
+    <update id="updateUsers" parameterType="com.TechieTroveHub.pojo.User">
         update
             t_user
         set
@@ -65,7 +65,7 @@
             id = #{id}
     </update>
 
-    <select id="getUserByPhoneOrEmail" parameterType="java.lang.String" resultType="com.TechieTroveHub.POJO.User">
+    <select id="getUserByPhoneOrEmail" parameterType="java.lang.String" resultType="com.TechieTroveHub.pojo.User">
         select
             *
         from
@@ -75,7 +75,7 @@
             tmp.pe like '%${phoneOrEmail}%'
     </select>
     
-    <update id="updateUserInfos" parameterType="com.TechieTroveHub.POJO.UserInfo">
+    <update id="updateUserInfos" parameterType="com.TechieTroveHub.pojo.UserInfo">
         update
             t_user_info
         set
@@ -99,7 +99,7 @@
             userId = #{userId}
     </update>
 
-    <select id="getUserInfoByUserIds" resultType="com.TechieTroveHub.POJO.UserInfo">
+    <select id="getUserInfoByUserIds" resultType="com.TechieTroveHub.pojo.UserInfo">
         select
         *
         from
@@ -126,7 +126,7 @@
             </if>
     </select>
 
-    <select id="pageListUserInfos" parameterType="java.util.Map" resultType="com.TechieTroveHub.POJO.UserInfo">
+    <select id="pageListUserInfos" parameterType="java.util.Map" resultType="com.TechieTroveHub.pojo.UserInfo">
         select
             *
         from
@@ -161,7 +161,7 @@
         values (#{refreshToken}, #{userId}, #{createTime})
     </insert>
 
-    <select id="getRefreshTokenDetail" parameterType="java.lang.String" resultType="com.TechieTroveHub.POJO.RefreshTokenDetail">
+    <select id="getRefreshTokenDetail" parameterType="java.lang.String" resultType="com.TechieTroveHub.pojo.RefreshTokenDetail">
         select
             *
         from

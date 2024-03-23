@@ -1,6 +1,6 @@
 package com.TechieTroveHub.dao;
 
-import com.TechieTroveHub.POJO.auth.AuthRoleElementOperation;
+import com.TechieTroveHub.pojo.auth.AuthRoleElementOperation;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

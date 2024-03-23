@@ -1,6 +1,4 @@
-package com.TechieTroveHub.POJO.exception;
-
-import org.springframework.core.codec.CodecException;
+package com.TechieTroveHub.pojo.exception;
 
 /**
  * ClassName: ConditionException

@@ -1,8 +1,8 @@
 package com.TechieTroveHub.api;
 
-import com.TechieTroveHub.POJO.FollowingGroup;
-import com.TechieTroveHub.POJO.JsonResponse;
-import com.TechieTroveHub.POJO.UserFollowing;
+import com.TechieTroveHub.pojo.FollowingGroup;
+import com.TechieTroveHub.pojo.JsonResponse;
+import com.TechieTroveHub.pojo.UserFollowing;
 import com.TechieTroveHub.service.UserFollowingService;
 import com.TechieTroveHub.support.UserSupport;
 import org.springframework.beans.factory.annotation.Autowired;

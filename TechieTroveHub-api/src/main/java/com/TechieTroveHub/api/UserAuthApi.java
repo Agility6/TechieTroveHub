@@ -1,7 +1,7 @@
 package com.TechieTroveHub.api;
 
-import com.TechieTroveHub.POJO.JsonResponse;
-import com.TechieTroveHub.POJO.auth.UserAuthorities;
+import com.TechieTroveHub.pojo.JsonResponse;
+import com.TechieTroveHub.pojo.auth.UserAuthorities;
 import com.TechieTroveHub.service.UserAuthService;
 import com.TechieTroveHub.support.UserSupport;
 import org.springframework.beans.factory.annotation.Autowired;

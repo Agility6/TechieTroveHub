@@ -1,6 +1,6 @@
 package com.TechieTroveHub.dao;
 
-import com.TechieTroveHub.POJO.auth.AuthRole;
+import com.TechieTroveHub.pojo.auth.AuthRole;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

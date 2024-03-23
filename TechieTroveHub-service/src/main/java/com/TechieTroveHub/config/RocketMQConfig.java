@@ -1,8 +1,7 @@
 package com.TechieTroveHub.config;
 
-import com.TechieTroveHub.POJO.UserFollowing;
-import com.TechieTroveHub.POJO.UserMoment;
-import com.TechieTroveHub.POJO.constant.UserMomentsConstant;
+import com.TechieTroveHub.pojo.UserFollowing;
+import com.TechieTroveHub.pojo.UserMoment;
 import com.TechieTroveHub.service.UserFollowingService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -17,16 +16,13 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
-import static com.TechieTroveHub.POJO.constant.UserMomentsConstant.GROUP_MOMENTS;
-import static com.TechieTroveHub.POJO.constant.UserMomentsConstant.TOPIC_MOMENTS;
+import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.GROUP_MOMENTS;
+import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.TOPIC_MOMENTS;
 
 /**
  * ClassName: RocketMQConfig

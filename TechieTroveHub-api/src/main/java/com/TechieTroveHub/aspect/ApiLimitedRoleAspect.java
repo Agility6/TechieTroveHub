@@ -1,8 +1,8 @@
 package com.TechieTroveHub.aspect;
 
-import com.TechieTroveHub.POJO.annotation.ApiLimitedRole;
-import com.TechieTroveHub.POJO.auth.UserRole;
-import com.TechieTroveHub.POJO.exception.ConditionException;
+import com.TechieTroveHub.pojo.annotation.ApiLimitedRole;
+import com.TechieTroveHub.pojo.auth.UserRole;
+import com.TechieTroveHub.pojo.exception.ConditionException;
 import com.TechieTroveHub.service.UserRoleService;
 import com.TechieTroveHub.support.UserSupport;
 import org.aspectj.lang.JoinPoint;
@@ -10,7 +10,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +37,7 @@ public class ApiLimitedRoleAspect {
     @Autowired
     private UserRoleService userRoleService;
 
-    @Pointcut("@annotation(com.TechieTroveHub.POJO.annotation.ApiLimitedRole)")
+    @Pointcut("@annotation(com.TechieTroveHub.pojo.annotation.ApiLimitedRole)")
     public void check() {}
 
     @Before("check() && @annotation(apiLimitedRole)")

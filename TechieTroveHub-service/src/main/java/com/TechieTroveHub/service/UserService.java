@@ -1,10 +1,10 @@
 package com.TechieTroveHub.service;
 
-import com.TechieTroveHub.POJO.PageResult;
-import com.TechieTroveHub.POJO.RefreshTokenDetail;
-import com.TechieTroveHub.POJO.User;
-import com.TechieTroveHub.POJO.UserInfo;
-import com.TechieTroveHub.POJO.exception.ConditionException;
+import com.TechieTroveHub.pojo.PageResult;
+import com.TechieTroveHub.pojo.RefreshTokenDetail;
+import com.TechieTroveHub.pojo.User;
+import com.TechieTroveHub.pojo.UserInfo;
+import com.TechieTroveHub.pojo.exception.ConditionException;
 import com.TechieTroveHub.dao.UserDao;
 import com.TechieTroveHub.utils.MD5Util;
 import com.TechieTroveHub.utils.RSAUtil;
@@ -13,10 +13,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static com.TechieTroveHub.POJO.constant.UserConstant.*;
+import static com.TechieTroveHub.pojo.constant.UserConstant.*;
 
 /**
  * ClassName: UserService
@@ -35,6 +36,7 @@ public class UserService {
     @Autowired
     private UserAuthService userAuthService;
 
+    @Transactional
     public void addUser(User user) {
 
         String phone = user.getPhone();
@@ -74,7 +76,6 @@ public class UserService {
         userDao.addUser(user);
 
         // 关联user_info
-        // TODO 应该增加事务 确保UserInfo和User同时成功
         UserInfo userInfo = new UserInfo();
         userInfo.setUserId(user.getId());
         userInfo.setNick(DEFAULT_NICK);
@@ -84,7 +85,7 @@ public class UserService {
         userDao.addUserInfo(userInfo);
 
 
-        // TODO 添加用户的默认权限
+        // 添加用户的默认权限
         userAuthService.addUserDefaultRole(user.getId());
     }
 

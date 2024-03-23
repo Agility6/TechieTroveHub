@@ -1,6 +1,6 @@
 package com.TechieTroveHub.dao;
 
-import com.TechieTroveHub.POJO.auth.UserRole;
+import com.TechieTroveHub.pojo.auth.UserRole;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

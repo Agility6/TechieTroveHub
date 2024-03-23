@@ -1,9 +1,9 @@
 package com.TechieTroveHub.api;
 
-import com.TechieTroveHub.POJO.JsonResponse;
-import com.TechieTroveHub.POJO.UserMoment;
-import com.TechieTroveHub.POJO.annotation.ApiLimitedRole;
-import com.TechieTroveHub.POJO.annotation.DataLimited;
+import com.TechieTroveHub.pojo.JsonResponse;
+import com.TechieTroveHub.pojo.UserMoment;
+import com.TechieTroveHub.pojo.annotation.ApiLimitedRole;
+import com.TechieTroveHub.pojo.annotation.DataLimited;
 import com.TechieTroveHub.service.UserMomentsService;
 import com.TechieTroveHub.support.UserSupport;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.TechieTroveHub.POJO.constant.AuthRoleConstant.ROLE_LV0;
+import static com.TechieTroveHub.pojo.constant.AuthRoleConstant.ROLE_LV0;
 
 
 /**
