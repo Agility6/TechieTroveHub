@@ -34,6 +34,9 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private UserAuthService userAuthService;
+
     public void addUser(User user) {
 
         String phone = user.getPhone();
@@ -81,6 +84,10 @@ public class UserService {
         userInfo.setGender(GENDER_MALE);
         userInfo.setCreateTime(now);
         userDao.addUserInfo(userInfo);
+
+
+        // TODO 添加用户的默认权限
+        userAuthService.addUserDefaultRole(user.getId());
     }
 
     public User getUserByPhone(String phone) {
