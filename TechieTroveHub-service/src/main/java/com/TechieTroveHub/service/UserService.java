@@ -244,4 +244,8 @@ public class UserService {
         // 根据userId重新刷新token
         return TokenUtil.generateToken(userId);
     }
+
+    public List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList) {
+        return userDao.batchGetUserInfoByUserIds(userIdList);
+    }
 }

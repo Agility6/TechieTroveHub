@@ -169,5 +169,17 @@
         where
             refreshToken = #{refreshToken}
     </select>
+    
+    <select id="batchGetUserInfoByUserIds" resultType="com.TechieTroveHub.pojo.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            userId in 
+            <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+                #{userId}
+            </foreach>
+    </select>
 
 </mapper>

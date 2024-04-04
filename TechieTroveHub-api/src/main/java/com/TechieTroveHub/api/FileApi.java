@@ -37,7 +37,7 @@ public class FileApi {
     /**
      * 断点续传
      * @param slice
-     * @param fileMD5
+     * @param fileMd5
      * @param sliceNo
      * @param totalSliceNo
      * @return
