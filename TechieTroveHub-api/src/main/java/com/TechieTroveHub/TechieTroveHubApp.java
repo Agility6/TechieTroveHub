@@ -1,5 +1,6 @@
 package com.TechieTroveHub;
 
+import com.TechieTroveHub.websocket.WebSocketService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -18,5 +19,7 @@ public class TechieTroveHubApp {
 
     public static void main(String[] args) {
         ApplicationContext app = SpringApplication.run(TechieTroveHubApp.class, args);
+        // websocket全局获取context
+        WebSocketService.setApplicationContext(app);
     }
 }
