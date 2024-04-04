@@ -2,24 +2,31 @@ package com.TechieTroveHub.websocket;
 
 import com.TechieTroveHub.pojo.Danmu;
 import com.TechieTroveHub.service.DanmuService;
+import com.TechieTroveHub.utils.RocketMQUtil;
 import com.TechieTroveHub.utils.TokenUtil;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.util.internal.StringUtil;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.common.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.TOPIC_DANMUS;
 
 /**
  * ClassName: WebSocketService
@@ -39,7 +46,7 @@ public class WebSocketService {
     private static final AtomicInteger ONLINE_COUNT = new AtomicInteger(0);
 
     // 确保线程安全
-    private static final ConcurrentHashMap<String, WebSocketService> WEBSOCKET_MAP = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, WebSocketService> WEBSOCKET_MAP = new ConcurrentHashMap<>();
 
     private static ApplicationContext APPLICATION_CONTEXT;
 
@@ -50,10 +57,6 @@ public class WebSocketService {
     private Session session;
 
     private String sessionId;
-
-    // TODO RedisTemplate?
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
 
     private Long userId;
 
@@ -116,11 +119,14 @@ public class WebSocketService {
                 for (Map.Entry<String, WebSocketService> entry : WEBSOCKET_MAP.entrySet()) {
                     // 获取websocketService
                     WebSocketService webSocketService = entry.getValue();
-                    // 判断是否保持连接
-                    if (webSocketService.session.isOpen()) {
-                        // 发送消息
-                        webSocketService.sendMessage(message);
-                    }
+
+                    DefaultMQProducer danmusProducer = (DefaultMQProducer) APPLICATION_CONTEXT.getBean("danmusProducer");
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("message", message);
+                    jsonObject.put("sessionId", webSocketService.getSessionId());
+                    Message msg = new Message(TOPIC_DANMUS, jsonObject.toJSONString().getBytes(StandardCharsets.UTF_8));
+                    // 异步发送
+                    RocketMQUtil.asyncSendMsg(danmusProducer, msg);
                 }
 
                 if (this.userId != null) {
@@ -129,7 +135,9 @@ public class WebSocketService {
                     danmu.setUserId(userId);
                     danmu.setCreateTime(new Date());
                     DanmuService danmuService = (DanmuService) APPLICATION_CONTEXT.getBean("danmuService");
-                    danmuService.addDanmu(danmu);
+
+                    // 异步保存
+                    danmuService.asyncAddDanmu(danmu);
 
                     // 保存弹幕到redis中
                     danmuService.addDanmusToRedis(danmu);
@@ -155,4 +163,29 @@ public class WebSocketService {
         this.session.getBasicRemote().sendText(message);
     }
 
+
+    /**
+     * 定时任务5秒自动发送在线人数
+     * @throws IOException
+     */
+    @Scheduled(fixedRate = 5000)
+    private void noticeOnlineCount() throws IOException {
+        for (Map.Entry<String, WebSocketService> entry : WebSocketService.WEBSOCKET_MAP.entrySet()) {
+            WebSocketService webSocketService = entry.getValue();
+            if (webSocketService.session.isOpen()) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("onlineCount", ONLINE_COUNT.get());
+                jsonObject.put("msg", "当前在线人数为" + ONLINE_COUNT.get());
+                webSocketService.sendMessage(jsonObject.toJSONString());
+            }
+        }
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
 }

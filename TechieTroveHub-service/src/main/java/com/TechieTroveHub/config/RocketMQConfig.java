@@ -2,7 +2,9 @@ package com.TechieTroveHub.config;
 
 import com.TechieTroveHub.pojo.UserFollowing;
 import com.TechieTroveHub.pojo.UserMoment;
+import com.TechieTroveHub.pojo.constant.UserMomentsConstant;
 import com.TechieTroveHub.service.UserFollowingService;
+import com.TechieTroveHub.websocket.WebSocketService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.util.internal.StringUtil;
@@ -16,13 +18,14 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.GROUP_MOMENTS;
-import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.TOPIC_MOMENTS;
+import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.*;
 
 /**
  * ClassName: RocketMQConfig
@@ -32,7 +35,7 @@ import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.TOPIC_MOMENTS
  * @Create 2024/3/18 17:26
  * @Version: 1.0
  */
-//@Configuration
+@Configuration
 public class RocketMQConfig {
 
     @Value("${rocketmq.name.server.address}")
@@ -93,6 +96,55 @@ public class RocketMQConfig {
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });
+        consumer.start();
+        return consumer;
+    }
+
+    @Bean("danmusProducer")
+    public DefaultMQProducer danmusProducer() throws Exception {
+        // 实例化消息生产者Producer
+        DefaultMQProducer producer = new DefaultMQProducer(GROUP_DANMUS);
+        // 设置NameServer的地址
+        producer.setNamesrvAddr(nameServerAddr);
+        // 启动Producer实例
+        producer.start();
+        return producer;
+    }
+
+    // TODO ?
+    @Bean("danmusConsumer")
+    public DefaultMQPushConsumer danmusConsumer() throws Exception {
+        // 实例化消费者
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(GROUP_DANMUS);
+        // 设置NameServer的地址
+        consumer.setNamesrvAddr(nameServerAddr);
+        // 订阅一个或者多个Topic，以及Tag来过滤需要消费的信息
+        consumer.subscribe(TOPIC_DANMUS, "*");
+        // 组册回调实现类来处理从broker拉取回来的信息
+        consumer.registerMessageListener(new MessageListenerConcurrently() {
+            @Override
+            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
+                MessageExt msg = msgs.get(0);
+                byte[] msgByte = msg.getBody();
+                String bodyStr = new String(msgByte);
+                JSONObject jsonObject = JSONObject.parseObject(bodyStr);
+                String sessionId = jsonObject.getString("sessionId");
+                String message = jsonObject.getString("message");
+                WebSocketService webSocketService = WebSocketService.WEBSOCKET_MAP.get(sessionId);
+
+                if (webSocketService.getSession().isOpen()) {
+                    try {
+                        webSocketService.sendMessage(message);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+        });
+
+        // 启动消费者实例
         consumer.start();
         return consumer;
     }
