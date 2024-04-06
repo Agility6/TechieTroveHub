@@ -59,4 +59,14 @@ public interface VideoDao {
     List<VideoComment> pageListVideoComments(Map<String, Object> params);
 
     List<VideoComment> batchGetVideoCommentsByRootIds(@Param("rootIdList") List<Long> parentIdList);
+
+    VideoView getVideoView(Map<String, Object> params);
+
+    Integer addVideoView(VideoView videoView);
+
+    Integer getVideoViewCounts(Long videoId);
+
+    List<UserPreference> getAllUserPreference();
+
+    List<Video> batchGetVideosByIds(@Param("idList") List<Long> itemIds);
 }

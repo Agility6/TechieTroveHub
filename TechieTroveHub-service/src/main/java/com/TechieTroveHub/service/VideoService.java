@@ -4,14 +4,34 @@ import com.TechieTroveHub.dao.VideoDao;
 import com.TechieTroveHub.pojo.*;
 import com.TechieTroveHub.pojo.exception.ConditionException;
 import com.TechieTroveHub.utils.FastDFSUtil;
+import com.TechieTroveHub.utils.IpUtil;
+import eu.bitwalker.useragentutils.UserAgent;
 import io.lettuce.core.ConnectionId;
 import org.apache.commons.io.filefilter.ConditionalFileFilter;
+import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
+import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
+import org.apache.mahout.cf.taste.impl.model.GenericPreference;
+import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
+import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
+import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
+import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
+import org.apache.mahout.cf.taste.impl.similarity.UncenteredCosineSimilarity;
+import org.apache.mahout.cf.taste.model.DataModel;
+import org.apache.mahout.cf.taste.model.PreferenceArray;
+import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
+import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.apache.mahout.cf.taste.recommender.Recommender;
+import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
+import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.net.www.content.text.Generic;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -349,5 +369,138 @@ public class VideoService {
         result.put("userInfo", userInfo);
 
         return result;
+    }
+
+    public void addVideoView(VideoView videoView, HttpServletRequest request) {
+
+        // 获取用户Id
+        Long userId = videoView.getUserId();
+        // 获取视频Id
+        Long videoId = videoView.getVideoId();
+
+        // 从HTTP请求头中获取User—Agent
+        String agent = request.getHeader("User-Agent");
+        
+        UserAgent userAgent = UserAgent.parseUserAgentString(agent);
+
+        // 将解析的userAgent作为clientId
+        String clientId = String.valueOf(userAgent.getId());
+
+        // 获取Ip
+        String ip = IpUtil.getIP(request);
+
+        Map<String, Object> params = new HashMap<>();
+
+        if (userId != null) {
+            params.put("userId", userId);
+        } else {
+            params.put("ip", ip);
+            params.put("clientId", clientId);
+        }
+
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        params.put("today", sdf.format(now));
+        params.put("videoId", videoId);
+
+        // 获取观看记录
+        VideoView dbVideoView = videoDao.getVideoView(params);
+        if (dbVideoView == null) {
+            videoView.setIp(ip);
+            videoView.setClientId(clientId);
+            videoView.setCreateTime(new Date());
+            videoDao.addVideoView(videoView);
+        }
+    }
+
+    public Integer getVideoViewCounts(Long videoId) {
+        return videoDao.getVideoViewCounts(videoId);
+    }
+
+    /**
+     * 基于用户的协同推荐
+     * @param userId
+     * @return
+     */
+    public List<Video> recommend(Long userId) throws TasteException {
+        List<UserPreference> list = videoDao.getAllUserPreference();
+        // 创建数据模型
+        DataModel dataModel = this.createDataModel(list);
+        // 获取用户相似程度
+        UserSimilarity similarity = new UncenteredCosineSimilarity(dataModel);
+        System.out.println(similarity.userSimilarity(11, 12));
+
+        // 获取用户邻居，选择2作为用户邻居的数量
+        UserNeighborhood userNeighborhood = new NearestNUserNeighborhood(2, similarity, dataModel);
+        long[] ar = userNeighborhood.getUserNeighborhood(userId);
+
+        // 构造推荐器
+        Recommender recommender = new GenericUserBasedRecommender(dataModel, userNeighborhood, similarity);
+
+        // 推荐视频
+        List<RecommendedItem> recommendedItems = recommender.recommend(userId, 5);
+        List<Long> itemIds = recommendedItems.stream().map(RecommendedItem::getItemID).collect(Collectors.toList());
+
+        return videoDao.batchGetVideosByIds(itemIds);
+
+    }
+
+    /**
+     * 基于内容的协同推荐
+     * @param userId 用户id
+     * @param itemId 参考内容id（根据该内容进行相似内容推荐）
+     * @param howMany 需要推荐的数量
+     * @return
+     */
+    public List<Video> recommendByItem(Long userId, Long itemId, int howMany) throws TasteException {
+        List<UserPreference> list = videoDao.getAllUserPreference();
+
+        // 创建数据模型
+        DataModel dataModel = this.createDataModel(list);
+
+        // 获取内容相似程度
+        ItemSimilarity similarity = new UncenteredCosineSimilarity(dataModel);
+        GenericItemBasedRecommender genericItemBasedRecommender = new GenericItemBasedRecommender(dataModel, similarity);
+        // 物品推荐相似度，计算两个物品同时出现的次数，次数越多任务的相似度越高
+        List<Long> itemIds = genericItemBasedRecommender.recommendedBecause(userId, itemId, howMany)
+                .stream()
+                .map(RecommendedItem::getItemID)
+                .collect(Collectors.toList());
+
+        // 推荐视频
+        return videoDao.batchGetVideosByIds(itemIds);
+    }
+
+    /**
+     * 将用户偏好列表转换为一个适合协同过滤推荐算法使用的数据模型
+     * @param userPreferenceList
+     * @return
+     */
+    private DataModel createDataModel(List<UserPreference> userPreferenceList) {
+
+        // 快速根据用户ID查找偏好数组的数据结构
+        FastByIDMap<PreferenceArray> fastByIdMap = new FastByIDMap<>();
+
+        // 将用户偏好列表按照用户ID进行分组
+        Map<Long, List<UserPreference>> map = userPreferenceList.stream().collect(Collectors.groupingBy(UserPreference::getUserId));
+
+        // 获取分组后的所有用户偏好列表
+        Collection<List<UserPreference>> list = map.values();
+
+        for(List<UserPreference> userPreferences : list) { // 遍历每个用户的偏好列表
+            // 为当前用户创建一个偏好数组，数组的大小为用户的偏好数量
+            GenericPreference[] array = new GenericPreference[userPreferences.size()];
+            for(int i = 0; i < userPreferences.size(); i++) { // 遍历当前用户的所有偏好
+                // 获取当前偏好对象
+                UserPreference userPreference = userPreferences.get(i);
+                // 根据偏好对象创建一个通用的偏好对象，其中包括用户ID、视频ID和偏好值
+                GenericPreference item = new GenericPreference(userPreference.getUserId(), userPreference.getVideoId(), userPreference.getValue());
+                // 将偏好对象添加到当前用户的偏好数组中。
+                array[i] = item;
+            }
+            // 将当前用户的偏好数组放入到fastByIdMap
+            fastByIdMap.put(array[0].getUserID(), new GenericUserPreferenceArray(Arrays.asList(array)));
+        }
+        return new GenericDataModel(fastByIdMap);
     }
 }
