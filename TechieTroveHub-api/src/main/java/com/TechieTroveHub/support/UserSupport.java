@@ -17,6 +17,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class UserSupport {
 
+    // TODO 使用双令牌登录
+
     public Long getCurrentUserId() {
         // 获取请求的信息
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

@@ -4,10 +4,9 @@ import com.TechieTroveHub.dao.VideoDao;
 import com.TechieTroveHub.pojo.*;
 import com.TechieTroveHub.pojo.exception.ConditionException;
 import com.TechieTroveHub.utils.FastDFSUtil;
+import com.TechieTroveHub.utils.ImageUtil;
 import com.TechieTroveHub.utils.IpUtil;
 import eu.bitwalker.useragentutils.UserAgent;
-import io.lettuce.core.ConnectionId;
-import org.apache.commons.io.filefilter.ConditionalFileFilter;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
@@ -24,15 +23,23 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sun.net.www.content.text.Generic;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.io.File;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +64,15 @@ public class VideoService {
     private UserService userService;
 
     @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private ImageUtil imageUtil;
+
+    @Autowired
     FastDFSUtil fastDFSUtil;
+
+    private static final int FRAME_NO = 256;
 
     @Transactional
     public void addVideos(Video video) {
@@ -502,5 +517,88 @@ public class VideoService {
             fastByIdMap.put(array[0].getUserID(), new GenericUserPreferenceArray(Arrays.asList(array)));
         }
         return new GenericDataModel(fastByIdMap);
+    }
+
+    /**
+     * 提取黑白剪影图像，并上传至 FastDFS。
+     * @param videoId
+     * @param fileMd5
+     * @return
+     * @throws Exception
+     */
+    public List<VideoBinaryPicture> convertVideoToImage(Long videoId, String fileMd5) throws Exception {
+        // 将服务器视频下载到本地中
+        com.TechieTroveHub.pojo.File file = fileService.getFileByMd5(fileMd5);
+        // TODO file下载路径
+        String filePath = "/Users/agility6/data/tmp" + videoId + "." + file.getType();
+        // 下载文件
+        fastDFSUtil.downLoadFile(file.getUrl(), filePath);
+
+        // 创建一个默认的帧抓取器
+        FFmpegFrameGrabber fFmpegFrameGrabber = FFmpegFrameGrabber.createDefault(filePath);
+        // 启动帧抓取器
+        fFmpegFrameGrabber.start();
+        // 获取视频文件的帧数
+        int ffLength = fFmpegFrameGrabber.getLengthInFrames();
+
+        Frame frame;
+        Java2DFrameConverter converter = new Java2DFrameConverter();
+        int count = 1;
+        List<VideoBinaryPicture> pictures = new ArrayList<>();
+
+        for (int i = 1; i <= ffLength; i++) { // 通过循环遍历视频的每一帧
+            // 获取当前帧的时间戳
+            long timestamp = fFmpegFrameGrabber.getTimestamp();
+            // 抓取当前帧的图像
+            frame = fFmpegFrameGrabber.grabImage();
+            // 检查是否需要处理的帧
+            if (count == i) {
+                if (frame == null) {
+                    throw new ConditionException("无效帧");
+                }
+
+                // 将帧图像转化为BufferedImage
+                BufferedImage bufferedImage = converter.getBufferedImage(frame);
+
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                // 将其以 PNG 格式写入流中
+                ImageIO.write(bufferedImage, "png", os);
+                // 将流转换为输入流
+                InputStream inputStream = new ByteArrayInputStream(os.toByteArray());
+
+                // 创建临时文件，并将处理后的帧图像写入临时文件中
+                java.io.File outputFile = java.io.File.createTempFile("convert-" + videoId + "-", ".png");
+                // 获取图像的黑白剪影
+                BufferedImage binaryImg = imageUtil.getBodyOutline(bufferedImage, inputStream);
+                // 将黑白剪影图像写入临时文件中
+                ImageIO.write(binaryImg, "png", outputFile);
+
+                // 有的浏览器或网站需要把图片白色的部分转为透明色，使用以下方法可实现
+                imageUtil.transferAlpha(outputFile, outputFile);
+
+                // 上传处理后的剪影文件至 FastDFS，并获取其 URL
+                String imgUrl = fastDFSUtil.uploadCommonFile(outputFile, "png");
+                //  创建 VideoBinaryPicture 对象，设置相关属性，包括帧编号、URL、视频ID、视频时间戳
+                VideoBinaryPicture videoBinaryPicture = new VideoBinaryPicture();
+                videoBinaryPicture.setFrameNo(i);
+                videoBinaryPicture.setUrl(imgUrl);
+                videoBinaryPicture.setVideoId(videoId);
+                videoBinaryPicture.setVideoTimestamp(timestamp);
+                pictures.add(videoBinaryPicture);
+                // 更新计数器 count，在下一次循环中处理下一个帧
+                count += FRAME_NO;
+                // 删除临时文件
+                outputFile.delete();
+            }
+        }
+        //删除临时文件
+        File tmpFile = new File(filePath);
+        tmpFile.delete();
+        //批量添加视频剪影文件
+        videoDao.batchAddVideoBinaryPictures(pictures);
+        return pictures;    }
+
+    public List<VideoBinaryPicture> getVideoBinaryImages(Map<String, Object> params) {
+        return videoDao.getVideoBinaryImages(params);
     }
 }

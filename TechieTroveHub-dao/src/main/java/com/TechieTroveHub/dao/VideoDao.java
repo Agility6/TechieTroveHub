@@ -69,4 +69,8 @@ public interface VideoDao {
     List<UserPreference> getAllUserPreference();
 
     List<Video> batchGetVideosByIds(@Param("idList") List<Long> itemIds);
+
+    Integer batchAddVideoBinaryPictures(@Param("pictureList") List<VideoBinaryPicture> pictures);
+
+    List<VideoBinaryPicture> getVideoBinaryImages(Map<String, Object> params);
 }

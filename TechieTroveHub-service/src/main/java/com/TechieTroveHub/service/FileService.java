@@ -56,4 +56,9 @@ public class FileService {
 
         return url;
     }
+
+
+    public File getFileByMd5(String fileMd5) {
+        return fileDao.getFileByMD5(fileMd5);
+    }
 }

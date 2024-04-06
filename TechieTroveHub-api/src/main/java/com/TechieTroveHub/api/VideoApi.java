@@ -4,12 +4,14 @@ import com.TechieTroveHub.pojo.*;
 import com.TechieTroveHub.service.ElasticSearchService;
 import com.TechieTroveHub.service.VideoService;
 import com.TechieTroveHub.support.UserSupport;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -255,10 +257,46 @@ public class VideoApi {
         return new JsonResponse<>(count);
     }
 
+    /**
+     * 视频内容推荐
+     * @return
+     * @throws TasteException
+     */
     @GetMapping("/recommendations")
     public JsonResponse<List<Video>> recommend() throws TasteException {
         Long userId = userSupport.getCurrentUserId();
         List<Video> list = videoService.recommend(userId);
+        return new JsonResponse<>(list);
+    }
+
+    /**
+     * 视频帧截取生成黑白剪影
+     * @param videoId
+     * @param fileMd5
+     * @return
+     * @throws Exception
+     */
+    public JsonResponse<List<VideoBinaryPicture>> captureVideoFrame(@RequestParam Long videoId,
+                                                                    @RequestParam String fileMd5) throws Exception {
+        List<VideoBinaryPicture> list = videoService.convertVideoToImage(videoId, fileMd5);
+        return new JsonResponse<>(list);
+    }
+
+    /**
+     * 查询视频黑白剪影
+     * @param videoId
+     * @param videoTimestamp
+     * @param frameNo
+     * @return
+     */
+    public JsonResponse<List<VideoBinaryPicture>> getVideoBinaryImages(@RequestParam Long videoId,
+                                                                       Long videoTimestamp,
+                                                                       String frameNo) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("videoId", videoId);
+        params.put("videoTimestamp", videoTimestamp);
+        params.put("frameNo", frameNo);
+        List<VideoBinaryPicture> list = videoService.getVideoBinaryImages(params);
         return new JsonResponse<>(list);
     }
 
