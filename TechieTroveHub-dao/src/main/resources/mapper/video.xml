@@ -252,7 +252,7 @@
         values(#{videoId}, #{userId}, #{clientId}, #{ip}, #{createTime})
     </insert>
 
-    <select id="getVideoViewCounts" parameterType="java.long.Long" resultType="java.lang.Integer">
+    <select id="getVideoViewCounts" parameterType="java.lang.Long" resultType="java.lang.Integer">
         select
             count(1)
         from
