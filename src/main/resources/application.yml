@@ -1,0 +1,13 @@
+server:
+  port: 8800
+spring:
+  #datasource
+  datasource:
+    url: jdbc:mysql://localhost:3308/techie-trove-hub?serverTimezone=GMT%2B8
+    username: root
+    password: tang6d
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # redis
+  redis:
+    host: 127.0.0.1
+    port: 6379
