@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * ClassName: VideoDao
@@ -73,4 +74,14 @@ public interface VideoDao {
     Integer batchAddVideoBinaryPictures(@Param("pictureList") List<VideoBinaryPicture> pictures);
 
     List<VideoBinaryPicture> getVideoBinaryImages(Map<String, Object> params);
+
+    List<VideoViewCount> getVideoViewCountByVideoIds(Set<Long> videoIdSet);
+
+    List<VideoDanmuCount> getVideoDanmuCountByVideoIds(Set<Long> videoIdSet);
+
+    void updateVideoCollection(VideoCollection videoCollection);
+
+    List<VideoTag> getVideoTagsByVideoId(Long videId);
+
+    Integer deleteVideoTags(@Param("tagIdList") List<Long> tagIdList, @Param("videoId") Long videoId);
 }

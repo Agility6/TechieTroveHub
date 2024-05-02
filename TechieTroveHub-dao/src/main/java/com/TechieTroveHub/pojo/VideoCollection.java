@@ -22,6 +22,8 @@ public class VideoCollection {
 
     private Date createTime;
 
+    private Video videoInfo;
+
     public Long getId() {
         return id;
     }
@@ -60,5 +62,13 @@ public class VideoCollection {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Video getVideoInfo() {
+        return videoInfo;
+    }
+
+    public void setVideoInfo(Video videoInfo) {
+        this.videoInfo = videoInfo;
     }
 }

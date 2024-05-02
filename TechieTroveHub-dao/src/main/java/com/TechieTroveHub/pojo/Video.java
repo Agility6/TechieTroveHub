@@ -25,7 +25,6 @@ public class Video {
     @Field(type = FieldType.Long)
     private Long userId;//用户id
 
-
     private String url; //视频链接
 
     private String thumbnail;//封面
@@ -49,6 +48,28 @@ public class Video {
 
     @Field(type = FieldType.Date)
     private Date updateTime;
+
+    @Field(type = FieldType.Integer)
+    private Integer viewCount;
+
+    @Field(type = FieldType.Integer)
+    private Integer danmuCount;
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public Integer getDanmuCount() {
+        return danmuCount;
+    }
+
+    public void setDanmuCount(Integer danmuCount) {
+        this.danmuCount = danmuCount;
+    }
 
     public Long getId() {
         return id;

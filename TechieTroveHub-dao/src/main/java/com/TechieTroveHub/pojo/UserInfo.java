@@ -35,12 +35,15 @@ public class UserInfo {
     private String birth;
 
     @Field(type = FieldType.Date)
-    private Date  createTime;
+    private Date createTime;
 
     @Field(type = FieldType.Date)
     private Date updateTime;
 
     private Boolean followed;
+
+    @Field(type = FieldType.Integer)
+    private Integer fanCount;
 
     public Long getId() {
         return id;
@@ -102,8 +105,8 @@ public class UserInfo {
         return createTime;
     }
 
-    public void setCreateTime(Date creatTime) {
-        this.createTime = creatTime;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public Date getUpdateTime() {
@@ -120,5 +123,13 @@ public class UserInfo {
 
     public void setFollowed(Boolean followed) {
         this.followed = followed;
+    }
+
+    public Integer getFanCount() {
+        return fanCount;
+    }
+
+    public void setFanCount(Integer fanCount) {
+        this.fanCount = fanCount;
     }
 }

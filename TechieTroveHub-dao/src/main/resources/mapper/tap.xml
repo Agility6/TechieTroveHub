@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.TechieTroveHub.dao.ContentDao">
+<mapper namespace="com.TechieTroveHub.dao.TagDao">
 
-    <!-- 将Java对象转化为JSON字符串进行存储 -->
-    <insert id="addContent" parameterType="com.TechieTroveHub.pojo.Content"
-            useGeneratedKeys="true" keyProperty="id">
+    <insert id="addTag" parameterType="com.TechieTroveHub.pojo.Tag" useGeneratedKeys="true" keyProperty="id">
         insert into
-            t_content
+            t_tag
         (
-            contentDetail,
+            name,
             createTime
         )values
             (
-                #{contentDetail,typeHandler=com.TechieTroveHub.handler.JsonObjectTypeHandler"},
+                #{name},
                 now()
             )
     </insert>
+
 </mapper>

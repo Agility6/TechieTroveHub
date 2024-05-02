@@ -36,6 +36,9 @@ public class UserService {
     @Autowired
     private UserAuthService userAuthService;
 
+    @Autowired
+    private ElasticSearchService elasticSearchService;
+
     @Transactional
     public void addUser(User user) {
 
@@ -87,6 +90,9 @@ public class UserService {
 
         // 添加用户的默认权限
         userAuthService.addUserDefaultRole(user.getId());
+
+        // 同步用户信息数据到es
+        elasticSearchService.addUserInfo(userInfo);
     }
 
     public User getUserByPhone(String phone) {

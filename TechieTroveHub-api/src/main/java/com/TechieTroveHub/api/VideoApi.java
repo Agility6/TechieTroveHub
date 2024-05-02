@@ -4,6 +4,8 @@ import com.TechieTroveHub.pojo.*;
 import com.TechieTroveHub.service.ElasticSearchService;
 import com.TechieTroveHub.service.VideoService;
 import com.TechieTroveHub.support.UserSupport;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,6 +130,18 @@ public class VideoApi {
     public JsonResponse<String> addVideoCollection(@RequestBody VideoCollection videoCollection) {
         Long userId = userSupport.getCurrentUserId();
         videoService.addVideoCollection(videoCollection, userId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 更新收藏视频
+     * @param videoCollection
+     * @return
+     */
+    @PutMapping("/video-collections")
+    public JsonResponse<String> updateVideoCollection(@RequestBody VideoCollection videoCollection) {
+        Long userId = userSupport.getCurrentUserId();
+        videoService.updateVideoCollection(videoCollection, userId);
         return JsonResponse.success();
     }
 
@@ -297,6 +311,49 @@ public class VideoApi {
         params.put("videoTimestamp", videoTimestamp);
         params.put("frameNo", frameNo);
         List<VideoBinaryPicture> list = videoService.getVideoBinaryImages(params);
+        return new JsonResponse<>(list);
+    }
+
+
+    /**
+     * 查询视频标签
+     * TODO 待查看
+     */
+    @GetMapping("/video-tags")
+    public JsonResponse<List<VideoTag>> getVideoTagsByVideoId(@RequestParam Long videId) {
+        List<VideoTag> list = videoService.getVideoTagsByVideoId(videId);
+        return new JsonResponse<>(list);
+    }
+
+    /**
+     *  删除视频标签
+     *  TODO待查看
+     */
+    @DeleteMapping("/video-tags")
+    public JsonResponse<String> deleteVideoTags(@RequestBody JSONObject params) {
+        String tagIdList = params.getString("tagIdList");
+        Long videoId = params.getLong("videoId");
+        videoService.deleteVideoTags(JSONArray.parseArray(tagIdList).toJavaList(Long.class), videoId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 视频内容推荐（游客版）
+     */
+    @GetMapping("/visitor-video-recommendations")
+    public JsonResponse<List<Video>> getVisitorVideoRecommendations() {
+        List<Video> list = videoService.getVisitorVideoRecommendations();
+        return new JsonResponse<>(list);
+    }
+
+    /**
+     * 视频内容推荐（整合版）
+     * TODO 待查看
+     */
+    @GetMapping("/video-recommendations")
+    public JsonResponse<List<Video>> getVideoRecommendations(@RequestParam String recommendType) {
+        Long userId = userSupport.getCurrentUserId();
+        List<Video> list = videoService.getVideoRecommendations(recommendType, userId);
         return new JsonResponse<>(list);
     }
 

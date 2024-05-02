@@ -22,7 +22,7 @@ import java.util.Set;
 @Configuration
 public class CorsConfig implements Filter {
 
-    private final String[] allowedDomain = {"http://localhost:8080", "http://39.107.54.180", "http://localhost:8081"};
+    private final String[] allowedDomain = {"http://localhost:8081", "http://172.20.10.3:8081"};
 
 
     public void doFilter(ServletRequest request, ServletResponse response,

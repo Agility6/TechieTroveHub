@@ -106,7 +106,7 @@ public class UserFollowingService {
         // 3.1 全部关注分组
         FollowingGroup allGroup = new FollowingGroup();
         allGroup.setName(USER_FOLLOWING_GROUP_ALL_NAME);
-        allGroup.setFollowingInfoList(userInfoList);
+        allGroup.setFollowingUserInfoList(userInfoList);
         result.add(allGroup);
 
         for (FollowingGroup group : groupList) {
@@ -117,7 +117,7 @@ public class UserFollowingService {
                     infoList.add(userFollowing.getUserInfo());
                 }
             }
-            group.setFollowingInfoList(infoList);
+            group.setFollowingUserInfoList(infoList);
             result.add(group);
         }
         return result;
@@ -189,5 +189,13 @@ public class UserFollowingService {
         }
 
         return userInfoList;
+    }
+
+    public void deleteUserFollowing(Long userId, Long followingId) {
+        userFollowingDao.deleteUserFollowing(userId, followingId);
+    }
+
+    public void updateUserFollowings(UserFollowing userFollowing) {
+        userFollowingDao.updateUserFollowings(userFollowing);
     }
 }

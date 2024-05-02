@@ -12,7 +12,6 @@ import java.util.List;
  * @Version: 1.0
  */
 public class FollowingGroup {
-
     private Long id;
 
     private Long userId;
@@ -25,8 +24,17 @@ public class FollowingGroup {
 
     private Date updateTime;
 
-    // TODO 待优化，全部关注者信息
-    private List<UserInfo> followingInfoList;
+    private List<UserInfo> followingUserInfoList;
+
+    private Integer count;
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 
     public Long getId() {
         return id;
@@ -76,11 +84,11 @@ public class FollowingGroup {
         this.updateTime = updateTime;
     }
 
-    public List<UserInfo> getFollowingInfoList() {
-        return followingInfoList;
+    public List<UserInfo> getFollowingUserInfoList() {
+        return followingUserInfoList;
     }
 
-    public void setFollowingInfoList(List<UserInfo> followingInfoList) {
-        this.followingInfoList = followingInfoList;
+    public void setFollowingUserInfoList(List<UserInfo> followingUserInfoList) {
+        this.followingUserInfoList = followingUserInfoList;
     }
 }

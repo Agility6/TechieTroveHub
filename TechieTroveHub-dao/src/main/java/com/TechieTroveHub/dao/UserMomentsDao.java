@@ -3,6 +3,9 @@ package com.TechieTroveHub.dao;
 import com.TechieTroveHub.pojo.UserMoment;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * ClassName: UserMomentsDao
  * Description:
@@ -14,4 +17,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserMomentsDao {
     Integer addUserMoments(UserMoment userMoment);
+
+    Integer pageCountMoments(Map<String, Object> params);
+
+    List<UserMoment> pageListMoments(Map<String, Object> params);
 }

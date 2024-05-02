@@ -7,6 +7,7 @@ import com.TechieTroveHub.utils.FastDFSUtil;
 import com.TechieTroveHub.utils.ImageUtil;
 import com.TechieTroveHub.utils.IpUtil;
 import eu.bitwalker.useragentutils.UserAgent;
+import io.lettuce.core.ConnectionId;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
@@ -27,6 +28,7 @@ import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,7 +74,13 @@ public class VideoService {
     @Autowired
     FastDFSUtil fastDFSUtil;
 
+
+    private static final int DEFAULT_RECOMMEND_NUMBER = 3;
+
     private static final int FRAME_NO = 256;
+
+    @Value("${fdfs.http.storage-addr}")
+    private String fastdfsUrl;
 
     @Transactional
     public void addVideos(Video video) {
@@ -114,9 +122,7 @@ public class VideoService {
         return new PageResult<>(total, list);
     }
 
-    public void viewVideoOnlineBySlices(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        String url) throws Exception {
+    public void viewVideoOnlineBySlices(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
         fastDFSUtil.viewVideoOnlineBySlices(request, response, url);
     }
 
@@ -227,7 +233,7 @@ public class VideoService {
         }
 
         // 查询当前登录用户是否拥有足够的硬币
-        Integer userCoinsAmount =  userCoinService.getUserCoinsAmount(userId);
+        Integer userCoinsAmount = userCoinService.getUserCoinsAmount(userId);
 
         userCoinsAmount = userCoinsAmount == null ? 0 : userCoinsAmount;
 
@@ -272,7 +278,6 @@ public class VideoService {
         result.put("like", like);
 
         return result;
-
 
 
     }
@@ -395,7 +400,7 @@ public class VideoService {
 
         // 从HTTP请求头中获取User—Agent
         String agent = request.getHeader("User-Agent");
-        
+
         UserAgent userAgent = UserAgent.parseUserAgentString(agent);
 
         // 将解析的userAgent作为clientId
@@ -434,6 +439,7 @@ public class VideoService {
 
     /**
      * 基于用户的协同推荐
+     *
      * @param userId
      * @return
      */
@@ -462,8 +468,9 @@ public class VideoService {
 
     /**
      * 基于内容的协同推荐
-     * @param userId 用户id
-     * @param itemId 参考内容id（根据该内容进行相似内容推荐）
+     *
+     * @param userId  用户id
+     * @param itemId  参考内容id（根据该内容进行相似内容推荐）
      * @param howMany 需要推荐的数量
      * @return
      */
@@ -477,10 +484,7 @@ public class VideoService {
         ItemSimilarity similarity = new UncenteredCosineSimilarity(dataModel);
         GenericItemBasedRecommender genericItemBasedRecommender = new GenericItemBasedRecommender(dataModel, similarity);
         // 物品推荐相似度，计算两个物品同时出现的次数，次数越多任务的相似度越高
-        List<Long> itemIds = genericItemBasedRecommender.recommendedBecause(userId, itemId, howMany)
-                .stream()
-                .map(RecommendedItem::getItemID)
-                .collect(Collectors.toList());
+        List<Long> itemIds = genericItemBasedRecommender.recommendedBecause(userId, itemId, howMany).stream().map(RecommendedItem::getItemID).collect(Collectors.toList());
 
         // 推荐视频
         return videoDao.batchGetVideosByIds(itemIds);
@@ -488,6 +492,7 @@ public class VideoService {
 
     /**
      * 将用户偏好列表转换为一个适合协同过滤推荐算法使用的数据模型
+     *
      * @param userPreferenceList
      * @return
      */
@@ -502,10 +507,10 @@ public class VideoService {
         // 获取分组后的所有用户偏好列表
         Collection<List<UserPreference>> list = map.values();
 
-        for(List<UserPreference> userPreferences : list) { // 遍历每个用户的偏好列表
+        for (List<UserPreference> userPreferences : list) { // 遍历每个用户的偏好列表
             // 为当前用户创建一个偏好数组，数组的大小为用户的偏好数量
             GenericPreference[] array = new GenericPreference[userPreferences.size()];
-            for(int i = 0; i < userPreferences.size(); i++) { // 遍历当前用户的所有偏好
+            for (int i = 0; i < userPreferences.size(); i++) { // 遍历当前用户的所有偏好
                 // 获取当前偏好对象
                 UserPreference userPreference = userPreferences.get(i);
                 // 根据偏好对象创建一个通用的偏好对象，其中包括用户ID、视频ID和偏好值
@@ -521,6 +526,7 @@ public class VideoService {
 
     /**
      * 提取黑白剪影图像，并上传至 FastDFS。
+     *
      * @param videoId
      * @param fileMd5
      * @return
@@ -596,9 +602,104 @@ public class VideoService {
         tmpFile.delete();
         //批量添加视频剪影文件
         videoDao.batchAddVideoBinaryPictures(pictures);
-        return pictures;    }
+        return pictures;
+    }
 
     public List<VideoBinaryPicture> getVideoBinaryImages(Map<String, Object> params) {
         return videoDao.getVideoBinaryImages(params);
+    }
+
+    public List<Video> getVideoCount(List<Video> videoList) {
+
+        if (!videoList.isEmpty()) {
+            // 获取视频id集合
+            Set<Long> videoIdSet = videoList.stream().map(Video::getId).collect(Collectors.toSet());
+
+            // 统计播放量
+            Map<Long, Integer> viewCountMap = this.batchCountVideoView(videoIdSet);
+            // 统计弹幕量
+            Map<Long, Integer> danmuCountMap = this.batchCountVideoDanmu(videoIdSet);
+
+            // Video 增加了 播放量和弹幕量
+            videoList.forEach(video -> {
+                video.setViewCount(viewCountMap.get(video.getId()));
+                video.setDanmuCount(danmuCountMap.get(video.getId()));
+            });
+        }
+        return videoList;
+    }
+
+    // 统计视频播放量
+    private Map<Long, Integer> batchCountVideoView(Set<Long> videoIdSet) {
+        // VideoViewCount --> 新增类
+        List<VideoViewCount> viewCount = videoDao.getVideoViewCountByVideoIds(videoIdSet);
+        return viewCount.stream().collect(Collectors.toMap(VideoViewCount::getVideoId, VideoViewCount::getCount));
+    }
+
+
+    // 统计视频弹幕量
+    private Map<Long, Integer> batchCountVideoDanmu(Set<Long> videoIdSet) {
+        // VideoDanmuCount --> 新增类
+        List<VideoDanmuCount> danmuCount = videoDao.getVideoDanmuCountByVideoIds(videoIdSet);
+        return danmuCount.stream().collect(Collectors.toMap(VideoDanmuCount::getVideoId, VideoDanmuCount::getCount));
+    }
+
+
+    // TODO 待检查
+    @Transactional
+    public void updateVideoCollection(VideoCollection videoCollection, Long userId) {
+        Long videoId = videoCollection.getVideoId();
+        Long groupId = videoCollection.getGroupId();
+
+        if (videoId == null || groupId == null) {
+            throw new ConditionException("参数异常！");
+        }
+
+        // 修改Video信息
+        Video video = videoDao.getVideoById(videoId);
+        if (video == null) {
+            throw new ConditionException("非法视频！");
+        }
+        videoCollection.setUserId(userId);
+        videoDao.updateVideoCollection(videoCollection);
+    }
+
+    public List<VideoTag> getVideoTagsByVideoId(Long videId) {
+        return videoDao.getVideoTagsByVideoId(videId);
+    }
+
+    public void deleteVideoTags(List<Long> tagIdList, Long videoId) {
+        videoDao.deleteVideoTags(tagIdList, videoId);
+    }
+
+    public List<Video> getVisitorVideoRecommendations() {
+        return this.pageListVideos(DEFAULT_RECOMMEND_NUMBER, 1, null).getList();
+    }
+
+    public List<Video> getVideoRecommendations(String recommendType, Long userId) {
+        List<Video> list = new ArrayList<>();
+        try {
+            //根据推荐类型进行推荐：1基于用户推荐 2基于内容推荐
+            if("1".equals(recommendType)){
+                list = this.recommend(userId);
+            }else{
+                //找到用户最喜欢的视频，作为推荐的基础内容
+                List<UserPreference> preferencesList = videoDao.getAllUserPreference();
+                Optional<Long> itemIdOpt = preferencesList.stream().filter(item -> item.getUserId().equals(userId))
+                        .max(Comparator.comparing(UserPreference :: getValue)).map(UserPreference::getVideoId);
+                if(itemIdOpt.isPresent()){
+                    list = this.recommendByItem(userId, itemIdOpt.get(), DEFAULT_RECOMMEND_NUMBER);
+                }
+            }
+            //若没有计算出推荐内容，则默认查询最新视频
+            if(list.isEmpty()){
+                list = this.pageListVideos(3,1,null).getList();
+            }else{
+                list.forEach(video -> video.setThumbnail(fastdfsUrl+video.getThumbnail()));
+            }
+        }catch (Exception e){
+            throw new ConditionException("推荐失败");
+        }
+        return list;
     }
 }

@@ -2,6 +2,7 @@ package com.TechieTroveHub.service;
 
 import com.TechieTroveHub.pojo.UserInfo;
 import com.TechieTroveHub.pojo.Video;
+import com.TechieTroveHub.pojo.constant.SearchConstant;
 import com.TechieTroveHub.repository.UserInfoRepository;
 import com.TechieTroveHub.repository.VideoRepository;
 import org.elasticsearch.action.search.SearchRequest;
@@ -18,6 +19,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -49,6 +52,7 @@ public class ElasticSearchService {
 
     /**
      * 将数据添加到es中
+     *
      * @param video
      */
     public void addVideo(Video video) {
@@ -61,6 +65,7 @@ public class ElasticSearchService {
 
     /**
      * 模糊查询
+     *
      * @param keyword
      */
     public Video getVideos(String keyword) {
@@ -72,15 +77,12 @@ public class ElasticSearchService {
     }
 
     /**
-     *
-     * @param keyword 关键字
-     * @param pageNo 页码
+     * @param keyword  关键字
+     * @param pageNo   页码
      * @param pageSize 页码大小
      * @return
      */
-    public List<Map<String, Object>> getContents(String keyword,
-                                                 Integer pageNo,
-                                                 Integer pageSize) throws IOException {
+    public List<Map<String, Object>> getContents(String keyword, Integer pageNo, Integer pageSize) throws IOException {
 
         // 定义搜索的索引
         String[] indices = {"videos", "user-infos"};
@@ -108,7 +110,7 @@ public class ElasticSearchService {
         HighlightBuilder highlightBuilder = new HighlightBuilder();
 
         for (String str : array) {
-           // 为每个字段添加了高亮配置
+            // 为每个字段添加了高亮配置
             highlightBuilder.fields().add(new HighlightBuilder.Field(str));
         }
 
@@ -149,5 +151,42 @@ public class ElasticSearchService {
             arrayList.add(sourceMap);
         }
         return arrayList;
+    }
+
+    public long countVideoBySearchTxt(String searchTxt) {
+        return this.videoRepository.countByTitleOrDescription(searchTxt, searchTxt);
+    }
+
+    public long countUserBySearchTxt(String searchTxt) {
+        return this.userInfoRepository.countByNick(searchTxt);
+    }
+
+    public Page<Video> pageListSearchVideos(String keyword, Integer pageSize, Integer pageNo, String searchType) {
+
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+
+        if (SearchConstant.DEFAULT.equals(searchType) || SearchConstant.VIEW_COUNT.equals(searchType)) {
+            return videoRepository.findByTitleOrDescriptionOrderByViewCountDesc(keyword, keyword, pageRequest);
+        } else if (SearchConstant.CREATE_TIME.equals(searchType)) {
+            return videoRepository.findByTitleOrDescriptionOrderByCreateTimeDesc(keyword, keyword, pageRequest);
+        } else if (SearchConstant.DANMU_COUNT.equals(searchType)) {
+            return videoRepository.findByTitleOrDescriptionOrderByDanmuCountDesc(keyword, keyword, pageRequest);
+        } else {
+            return videoRepository.findByTitleOrDescriptionOrderByViewCountDesc(keyword, keyword, pageRequest);
+        }
+
+    }
+
+    public Page<UserInfo> pageListSearchUsers(String keyword, Integer pageSize, Integer pageNo, String searchType) {
+
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+        if (SearchConstant.USER_DEFAULT.equals(searchType) || SearchConstant.USER_FAN_COUNT_DESC.equals(searchType)) {
+            return userInfoRepository.findByNickOrderByFanCountDesc(keyword, pageRequest);
+        } else if (SearchConstant.USER_FAN_COUNT_ASC.equals(searchType)) {
+            return userInfoRepository.findByNickOrderByFanCountAsc(keyword, pageRequest);
+        } else {
+            return userInfoRepository.findByNickOrderByFanCountDesc(keyword, pageRequest);
+        }
+
     }
 }

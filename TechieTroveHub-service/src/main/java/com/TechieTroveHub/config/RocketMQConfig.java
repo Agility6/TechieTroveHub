@@ -35,7 +35,7 @@ import static com.TechieTroveHub.pojo.constant.UserMomentsConstant.*;
  * @Create 2024/3/18 17:26
  * @Version: 1.0
  */
-@Configuration
+//@Configuration
 public class RocketMQConfig {
 
     @Value("${rocketmq.name.server.address}")
